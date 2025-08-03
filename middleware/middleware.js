@@ -1,0 +1,42 @@
+const express=require("express");
+const app=express();
+require("dotenv").config();
+const jwt=require("jsonwebtoken");
+
+app.use(express.json())
+
+
+
+
+
+
+const middleware=(req,res,next)=>{
+    try{
+    //    console.log("headers",req.headers)
+    const authHeader=req.headers.authorization
+    const token = authHeader.split(" ")[1];
+    // console.log(token)
+  
+ 
+
+if (!token) {
+  return res.status(401).send("Please Login!");
+}
+   const check=jwt.verify(token,process.env.SECRET_KEY)
+            // console.log(check)
+            req.user=check  // this is where req.user.id comes from
+         next();
+
+   }catch(err){
+            if(err.name==="TokenExpiredError"){
+                res.send("Session Expired, Please Login Again")
+            }else{
+                res.send(err)
+            }
+        }
+        
+    }
+    
+
+
+module.exports=middleware;
