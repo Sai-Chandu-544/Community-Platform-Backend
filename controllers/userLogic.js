@@ -107,3 +107,23 @@ module.exports.all_posts=async(req,res)=>{
 
   }
 }
+
+module.exports.user_posts = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userExists = await user_model.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const posts = await post_model
+      .find({ author: userId })
+      .populate("author", "name email bio")
+      .sort({ createdAt: -1 }); // latest first
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
